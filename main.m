@@ -49,16 +49,37 @@ for i = 1:length(Eb_N0_dB)
     BER_QPSK(i) = sum(data ~= demod_QPSK) / N;
 end
 
-% Plot BER vs Eb/N0 for each modulation scheme
+% Create subplots for each modulation scheme
 figure;
-semilogy(Eb_N0_dB, BER_BASK, 'r-o', 'DisplayName', 'BASK');
-hold on;
-semilogy(Eb_N0_dB, BER_BPSK, 'b-s', 'DisplayName', 'BPSK');
-semilogy(Eb_N0_dB, BER_BFSK, 'g-^', 'DisplayName', 'BFSK');
-semilogy(Eb_N0_dB, BER_QPSK, 'k-d', 'DisplayName', 'QPSK');
+
+% BASK
+subplot(2, 2, 1);
+semilogy(Eb_N0_dB, BER_BASK, 'r-o');
 xlabel('E_b/N_0 (dB)');
 ylabel('Bit Error Rate (BER)');
-title('BER vs E_b/N_0 for BASK, BPSK, BFSK, and QPSK Modulation');
-legend('Location', 'southwest');
+title('BER vs E_b/N_0 for BASK');
 grid on;
-hold off;
+
+% BPSK
+subplot(2, 2, 2);
+semilogy(Eb_N0_dB, BER_BPSK, 'b-s');
+xlabel('E_b/N_0 (dB)');
+ylabel('Bit Error Rate (BER)');
+title('BER vs E_b/N_0 for BPSK');
+grid on;
+
+% BFSK
+subplot(2, 2, 3);
+semilogy(Eb_N0_dB, BER_BFSK, 'g-^');
+xlabel('E_b/N_0 (dB)');
+ylabel('Bit Error Rate (BER)');
+title('BER vs E_b/N_0 for BFSK');
+grid on;
+
+% QPSK
+subplot(2, 2, 4);
+semilogy(Eb_N0_dB, BER_QPSK, 'k-d');
+xlabel('E_b/N_0 (dB)');
+ylabel('Bit Error Rate (BER)');
+title('BER vs E_b/N_0 for QPSK');
+grid on;
