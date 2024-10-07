@@ -8,7 +8,8 @@ data = randi([0 1], N, 1);
 % Initialize BER storage for all modulation types
 BER_BASK = zeros(length(Eb_N0_dB),1);
 BER_BPSK = zeros(length(Eb_N0_dB),1);
-BER_BFSK = zeros(length(Eb_N0_dB),1);
+BER_BFSK_Coh = zeros(length(Eb_N0_dB),1);
+BER_BFSK_NonCoh = zeros(length(Eb_N0_dB),1);
 BER_QPSK = zeros(length(Eb_N0_dB),1);
 
 for i = 1:length(Eb_N0_dB)
@@ -16,28 +17,35 @@ for i = 1:length(Eb_N0_dB)
     Eb_N0 = 10^(Eb_N0_dB(i)/10); 
     noise_std_dev = 1/sqrt(2*Eb_N0); 
     
-    %% BASK Modulation and Demodulation
+    %% Coherent BASK Modulation and Demodulation
     tx_BASK = data; % BASK: 0 -> 0, 1 -> 1
     noise_BASK = noise_std_dev * randn(N, 1);
     rx_BASK = tx_BASK + noise_BASK; 
     demod_BASK = rx_BASK >= 0.5; % Decision threshold = 0.5
     BER_BASK(i) = sum(data ~= demod_BASK) / N;
     
-    %% BPSK Modulation and Demodulation
+    %% Coherent BPSK Modulation and Demodulation
     tx_BPSK = 2*data - 1; % BPSK: 0 -> -1, 1 -> +1
     noise_BPSK = noise_std_dev * randn(N, 1);
     rx_BPSK = tx_BPSK + noise_BPSK; 
     demod_BPSK = rx_BPSK >= 0; % Decision threshold = 0
     BER_BPSK(i) = sum(data ~= demod_BPSK) / N;
     
-    %% BFSK Modulation and Demodulation
-    tx_BFSK = 2*data - 1; % BFSK: 0 -> -1, 1 -> +1 (frequency representation simplified)
-    noise_BFSK = noise_std_dev * randn(N, 1);
-    rx_BFSK = tx_BFSK + noise_BFSK;
-    demod_BFSK = rx_BFSK >= 0; % Decision threshold = 0
-    BER_BFSK(i) = sum(data ~= demod_BFSK) / N;
+    %% Coherent BFSK Modulation and Demodulation
+    tx_BFSK_Coh = 2*data - 1; % BFSK: 0 -> -1, 1 -> +1
+    noise_BFSK_Coh = noise_std_dev * randn(N, 1);
+    rx_BFSK_Coh = tx_BFSK_Coh + noise_BFSK_Coh;
+    demod_BFSK_Coh = rx_BFSK_Coh >= 0; % Decision threshold = 0
+    BER_BFSK_Coh(i) = sum(data ~= demod_BFSK_Coh) / N;
     
-    %% QPSK Modulation and Demodulation
+    %% Non-Coherent BFSK Modulation and Demodulation
+    tx_BFSK_NonCoh = 2*data - 1; % Simplified BFSK: 0 -> -1, 1 -> +1
+    noise_BFSK_NonCoh = noise_std_dev * randn(N, 1);
+    rx_BFSK_NonCoh = abs(tx_BFSK_NonCoh + noise_BFSK_NonCoh); % Non-coherent demodulation uses magnitude
+    demod_BFSK_NonCoh = rx_BFSK_NonCoh >= 0.5; % Decision threshold = 0.5
+    BER_BFSK_NonCoh(i) = sum(data ~= demod_BFSK_NonCoh) / N;
+    
+    %% Coherent QPSK Modulation and Demodulation
     data_QPSK = reshape(data, [], 2); % Reshape to pairs of bits
     tx_QPSK = 1/sqrt(2) * (2*data_QPSK(:,1) - 1 + 1i * (2*data_QPSK(:,2) - 1)); % QPSK Modulation
     noise_QPSK = (noise_std_dev/sqrt(2)) * (randn(length(tx_QPSK),1) + 1i*randn(length(tx_QPSK),1));
@@ -52,34 +60,42 @@ end
 % Create subplots for each modulation scheme
 figure;
 
-% BASK
-subplot(2, 2, 1);
+% Coherent BASK
+subplot(3, 2, 1);
 semilogy(Eb_N0_dB, BER_BASK, 'r-o');
 xlabel('E_b/N_0 (dB)');
 ylabel('Bit Error Rate (BER)');
-title('BER vs E_b/N_0 for BASK');
+title('BER vs E_b/N_0 for Coherent BASK');
 grid on;
 
-% BPSK
-subplot(2, 2, 2);
+% Coherent BPSK
+subplot(3, 2, 2);
 semilogy(Eb_N0_dB, BER_BPSK, 'b-s');
 xlabel('E_b/N_0 (dB)');
 ylabel('Bit Error Rate (BER)');
-title('BER vs E_b/N_0 for BPSK');
+title('BER vs E_b/N_0 for Coherent BPSK');
 grid on;
 
-% BFSK
-subplot(2, 2, 3);
-semilogy(Eb_N0_dB, BER_BFSK, 'g-^');
+% Coherent BFSK
+subplot(3, 2, 3);
+semilogy(Eb_N0_dB, BER_BFSK_Coh, 'g-^');
 xlabel('E_b/N_0 (dB)');
 ylabel('Bit Error Rate (BER)');
-title('BER vs E_b/N_0 for BFSK');
+title('BER vs E_b/N_0 for Coherent BFSK');
 grid on;
 
-% QPSK
-subplot(2, 2, 4);
+% Non-Coherent BFSK
+subplot(3, 2, 4);
+semilogy(Eb_N0_dB, BER_BFSK_NonCoh, 'c-^');
+xlabel('E_b/N_0 (dB)');
+ylabel('Bit Error Rate (BER)');
+title('BER vs E_b/N_0 for Non-Coherent BFSK');
+grid on;
+
+% Coherent QPSK
+subplot(3, 2, 5);
 semilogy(Eb_N0_dB, BER_QPSK, 'k-d');
 xlabel('E_b/N_0 (dB)');
 ylabel('Bit Error Rate (BER)');
-title('BER vs E_b/N_0 for QPSK');
+title('BER vs E_b/N_0 for Coherent QPSK');
 grid on;
